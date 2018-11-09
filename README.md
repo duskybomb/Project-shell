@@ -1,4 +1,4 @@
-# Project-shell
+# ASH (Ares SHell) - Unix Shell in C
 
 OS Project for Operating System Course at Cluster Innovation Centre, University of Delhi:
 
