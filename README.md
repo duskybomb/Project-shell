@@ -17,10 +17,10 @@ OS Project for Operating System Course at Cluster Innovation Centre, University 
 
 ## ToDo
 
-[ ] Using dotfile
-[ ] Add more built-in functions 
-[ ] Make better ui. Colors? New Window?
-[x] Add current location to prompt
+- [ ] Using dotfile
+- [ ] Add more built-in functions 
+- [ ] Make better ui. Colors? New Window?
+- [x] Add current location to prompt
 
 ## Screenshot
 
