@@ -115,6 +115,12 @@ int ash_exit(char **args)
                     if(mkdir(args[1],0777)==-1 ){
                           perror("+--- Error in mkdir ");
                     }
+
+                    for(int i=2;args[i]!=NULL;i++){
+                      if(mkdir(args[i],0777)==-1 ){
+                          perror("+--- Error in mkdir ");
+                      }
+                    }
               }
 
     return 1;
