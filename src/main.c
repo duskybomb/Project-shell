@@ -2,7 +2,7 @@
 
   @file         main.c
 
-  @author       Harshit Joshi
+  @author       Harshit Joshi & Eklavya Chopra
 
   @date         Friday,  9 November 2018
 
@@ -17,6 +17,26 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
+#include <sys/stat.h>
+
+const char rocket[] =
+"           _\n\
+          /^\\\n\
+          |-|\n\
+          | |\n\
+          | |\n\
+          |A|\n\
+          |S|\n\
+          |H|\n\
+         /| |\\\n\
+        / | | \\\n\
+       |  | |  |\n\
+        `-\"\"\"-`\n\
+";
+
+
+
+
 
 /*
   Function Declarations for builtin shell commands:
@@ -24,20 +44,22 @@
 int ash_cd(char **args);
 int ash_help(char **args);
 int ash_exit(char **args);
-
+int ash_mkdir(char **args);
 /*
   List of builtin commands, followed by their corresponding functions.
  */
 char *builtin_str[] = {
   "cd",
   "help",
-  "exit"
+  "exit",
+  "mkdir"
 };
 
 int (*builtin_func[]) (char **) = {
   &ash_cd,
   &ash_help,
-  &ash_exit
+  &ash_exit,
+  &ash_mkdir
 };
 
 int ash_num_builtins() {
@@ -73,7 +95,7 @@ int ash_cd(char **args)
 int ash_help(char **args)
 {
   int i;
-  printf("Harshit Joshi's ash\n");
+  printf("%s",rocket );
   printf("Type program names and arguments, and hit enter.\n");
   printf("The following are built in:\n");
 
@@ -87,7 +109,7 @@ int ash_help(char **args)
 
 /**
    @brief Builtin command: exit.
-   @param args List of args.  Not examined.
+   @param args List of args.  Not examined
    @return Always returns 0, to terminate execution.
  */
 int ash_exit(char **args)
@@ -95,11 +117,44 @@ int ash_exit(char **args)
   return 0;
 }
 
+
+
 /**
-  @brief Launch a program and wait for it to terminate.
-  @param args Null terminated list of arguments (including program).
-  @return Always returns 1, to continue execution.
+   @brief Builtin command: make directory.
+   @param args List of args.  args[0] is "cd".  args[1] is the directory.
+   @return Always returns 1, to continue executing.
  */
+
+
+
+
+ int ash_mkdir(char **args)
+ {
+
+            if(args[1]==NULL){
+              fprintf(stderr, "ash: expected argument to \"mkdir\"\n");
+
+            }else{
+
+                    if(mkdir(args[1],0777)==-1 ){
+                          perror("+--- Error in mkdir ");
+                    }
+              }
+
+    return 1;
+ }
+
+
+
+
+ /**
+   @brief Launch a program and wait for it to terminate.
+   @param args Null terminated list of arguments (including program).
+   @return Always returns 1, to continue execution.
+  */
+
+
+
 int ash_launch(char **args)
 {
   pid_t pid;
@@ -239,7 +294,7 @@ void ash_loop(void)
   char *line;
   char **args;
   int status;
-  
+
   char cwd[PATH_MAX];
   do {
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
@@ -273,7 +328,7 @@ int main(int argc, char **argv)
 {
   // Load config files, if any.
   system("clear");
-  
+
   char ch, filename[25] = ".ashrc";
   FILE *fp;
 
@@ -289,4 +344,3 @@ int main(int argc, char **argv)
 
   return EXIT_SUCCESS;
 }
-
