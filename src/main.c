@@ -17,14 +17,23 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
-
+#include <time.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <pwd.h>
+#include <fcntl.h>
+#define ash_RL_BUFSIZE 1024
+#define ash_TOK_BUFSIZE 64
+#define ash_TOK_DELIM " \t\r\n\a"
 /*
   Function Declarations for builtin shell commands:
  */
 int ash_cd(char **args);
 int ash_help(char **args);
 int ash_exit(char **args);
-
+int ash_history(char *args);
+void ash_mkdir(char *args);
+void ash_rmdir(char *args);
 /*
   List of builtin commands, followed by their corresponding functions.
  */
@@ -95,6 +104,96 @@ int ash_exit(char **args)
   return 0;
 }
 
+
+int ash_history(char *args)
+{
+  const char *key = "history";
+
+  if (strlen(args) < strlen(key))
+    return 0;
+  int i;
+
+  for (i = 0; i < (int) strlen(key); i++) {
+    if (args[i] != key[i])
+      return 0;
+  }
+  return 1;
+}
+
+
+
+void ash_mkdir(char *args)
+{
+    int statmk = mkdir(args, 0777);// all appropriate permissions
+    if(statmk==-1)
+    {
+        perror("+--- Error in mkdir ");
+    }
+}
+
+void ash_rmdir(char *args)
+{
+    int statrm = rmdir(args);
+    if(statrm==-1)
+    {
+        perror("+--- Error in rmdir ");
+    }
+}
+
+
+void ash_copy(char* file1, char* file2)
+{
+    FILE *f1,*f2;
+    struct stat t1,t2;
+    f1 = fopen(file1,"r");
+    if(f1 == NULL)
+    {
+        perror("+--- Error in cp file1 ");
+        return;
+    }
+    f2 = fopen(file2,"r");// if file exists
+    if(f2)
+    {
+        // file2 exists
+        // file1 must be more recently updated
+        stat(file1, &t1);
+        stat(file2, &t2);
+        if(difftime(t1.st_mtime,t2.st_mtime) < 0)
+        {
+            printf("+--- Error in cp : %s is more recently updated than %s\n",file2,file1);
+            fclose(f1);
+            fclose(f2);
+            return;
+        }
+    }
+    f2 = fopen(file2,"ab+"); // create the file if it doesn't exist
+    fclose(f2);
+
+    f2 = fopen(file2,"w+");
+    if(f2 == NULL)
+    {
+        perror("Error in cp file2 ");
+        fclose(f1);
+        return;
+    }
+    //if(access(file2,W_OK)!=0 || access(file1,R_OK)!=0 || access(file2,F_OK)!=0)
+    if(open(file2,O_WRONLY)<0 || open(file1,O_RDONLY)<0)
+    {
+        perror("Error in cp access ");
+        return;
+    }
+    char cp;
+    while((cp=getc(f1))!=EOF)
+    {
+        putc(cp,f2);
+    }
+
+    fclose(f1);
+    fclose(f2);
+}
+
+
+
 /**
   @brief Launch a program and wait for it to terminate.
   @param args Null terminated list of arguments (including program).
@@ -119,7 +218,7 @@ int ash_launch(char **args)
     // Parent process
     do {
       waitpid(pid, &status, WUNTRACED);
-    } while (!WIFEXITED(status) && !WIFSIGNALED(status)); // NO USE OF THIS LINE WHY ARE WE CHECKING STATUS OF BOTH SIGNAL AND EXITED AND NO USE OF LOOP USED HERE
+    } while (!WIFEXITED(status) && !WIFSIGNALED(status)); 
   }
 
   return 1;
@@ -138,61 +237,57 @@ int ash_execute(char **args)
     // An empty command was entered.
     return 1;
   }
-
-  for (i = 0; i < ash_num_builtins(); i++) {
-    if (strcmp(args[0], builtin_str[i]) == 0) {
-      return (*builtin_func[i])(args);
+  if(strcmp(args[0],"history")==0)
+    {
+        ash_history(args[0]);
+    }
+  else if(strcmp(args[0],"mkdir")==0)
+    {
+        char *foldername = args[1];
+        ash_mkdir(foldername);
+    }
+    else if(strcmp(args[0],"rmdir")==0)
+    {
+        char *foldername = args[1];
+        ash_rmdir(foldername);
+    }
+    else if(strcmp(args[0],"cp")==0)
+    {
+        char* file1 = args[1];
+        char* file2 = args[2];
+      if(strlen(file1) > 0 && strlen(file2) > 0)
+        {
+            ash_copy(file1,file2);
+        }
+        else
+        {
+            printf("+--- Error in cp : insufficient parameters\n");
+        }
+    }
+  else{
+    for (i = 0; i < ash_num_builtins(); i++) {
+      if (strcmp(args[0], builtin_str[i]) == 0) {
+        return (*builtin_func[i])(args);
+      }
     }
   }
-
   return ash_launch(args);
 }
 
-#define ash_RL_BUFSIZE 1024
+
 /**
    @brief Read a line of input from stdin.
    @return The line from stdin.
  */
 char *ash_read_line(void)
 {
-  int bufsize = ash_RL_BUFSIZE;
-  int position = 0;
-  char *buffer = malloc(sizeof(char) * bufsize);
-  int c;
-
-  if (!buffer) {
-    fprintf(stderr, "ash: allocation error\n");
-    exit(EXIT_FAILURE);
-  }
-
-  while (1) {
-    // Read a character
-    c = getchar();
-
-    if (c == EOF) {
-      exit(EXIT_SUCCESS);
-    } else if (c == '\n') {
-      buffer[position] = '\0';
-      return buffer;
-    } else {
-      buffer[position] = c;
-    }
-    position++;
-
-    // If we have exceeded the buffer, reallocate.
-    if (position >= bufsize) {
-      bufsize += ash_RL_BUFSIZE;
-      buffer = realloc(buffer, bufsize);
-      if (!buffer) {
-        fprintf(stderr, "ash: allocation error\n");
-        exit(EXIT_FAILURE);
-      }
-    }
-  }
+    char *line = NULL;
+    size_t len = 0;
+    getline(&line, &len, stdin);
+    return line;
 }
 
-#define ash_TOK_BUFSIZE 64
-#define ash_TOK_DELIM " \t\r\n\a"
+
 /**
    @brief Split a line into tokens (very naively).
    @param line The line.
@@ -243,10 +338,10 @@ void ash_loop(void)
   char cwd[PATH_MAX];
   do {
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
-      // printf("%c[1m",27);
-      printf("\033[1;33m");
+      printf("%c[1m",27);
+      printf("\033[1;32m");
       printf("%s", cwd);
-      printf("\033[1;36m");
+      printf("\033[1;31m");
       printf(">> ");
       printf("\033[0m");
       printf("%c[0m",27);
@@ -278,7 +373,6 @@ int main(int argc, char **argv)
   FILE *fp;
 
   fp = fopen(filename, "r");
-
   if (fp == NULL) {
     printf("Cannot find .ashrc :: using default settings\n");
   }
