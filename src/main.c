@@ -119,7 +119,7 @@ int ash_launch(char **args)
     // Parent process
     do {
       waitpid(pid, &status, WUNTRACED);
-    } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+    } while (!WIFEXITED(status) && !WIFSIGNALED(status)); // NO USE OF THIS LINE WHY ARE WE CHECKING STATUS OF BOTH SIGNAL AND EXITED AND NO USE OF LOOP USED HERE
   }
 
   return 1;
@@ -243,7 +243,7 @@ void ash_loop(void)
   char cwd[PATH_MAX];
   do {
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
-      printf("%c[1m",27);
+      // printf("%c[1m",27);
       printf("\033[1;33m");
       printf("%s", cwd);
       printf("\033[1;36m");
