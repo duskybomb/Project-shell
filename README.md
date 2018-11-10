@@ -18,13 +18,14 @@ OS Project for Operating System Course at Cluster Innovation Centre, University 
 ## ToDo
 
 - [ ] Using dotfile
-- [ ] Add more built-in functions 
+- [ ] Add more built-in functions
 - [ ] Make better ui. Colors? New Window?
 - [x] Add current location to prompt
 
 ## Screenshot
 
-![ash (Ares SHell)](https://github.com/duskybomb/Project-shell/raw/master/screenshot.png "ash in working")
+![ash (Ares SHell)](https://github.com/Eklavya42/Project-shell/blob/master/images/Screenshot%20from%202018-11-10%2019-15-33.png?raw=true "ash help")
+
 
 ## Members
 
