@@ -52,8 +52,8 @@ int ash_cd(char **args);
 int ash_help(char **args);
 int ash_exit(char **args);
 int ash_history(char *args);
-void ash_mkdir(char *args);
-void ash_rmdir(char *args);
+int ash_mkdir(char **args);
+int ash_rmdir(char **args);
 /*
   List of builtin commands, followed by their corresponding functions.
  */
@@ -61,12 +61,18 @@ char *builtin_str[] = {
   "cd",
   "help",
   "exit",
+  "history",
+  "mkdir",
+  "rmdir",
+  "copy cp"
 };
 
 int (*builtin_func[]) (char **) = {
   &ash_cd,
   &ash_help,
-  &ash_exit
+  &ash_exit,
+  &ash_mkdir,
+  &ash_rmdir
 };
 
 int ash_num_builtins() {
@@ -149,13 +155,16 @@ int ash_history(char *args)
    @param args List of args.  args[0] is "mkdir".  args[1] is the directory.
    @return Always returns 1, to continue executing.
  */
-void ash_mkdir(char *args)
+int ash_mkdir(char **args)
 {
-    int statmk = mkdir(args, 0777);// all appropriate permissions
-    if(statmk==-1)
-    {
-        perror("+--- Error in mkdir ");
+  if(args[1]==NULL){
+    fprintf(stderr, "ash: expected argument to \"mkdir\"\n");
+  }else{
+    if(mkdir(args[1],0777)==-1 ){
+      perror("+--- Error in mkdir ");
     }
+  }
+  return 1;
 }
 
 
@@ -164,13 +173,16 @@ void ash_mkdir(char *args)
    @param args List of args.  args[0] is "rmdir".  args[1] is the directory.
    @return Always returns 1, to continue executing.
  */
-void ash_rmdir(char *args)
+int ash_rmdir(char **args)
 {
-    int statrm = rmdir(args);
-    if(statrm==-1)
-    {
-        perror("+--- Error in rmdir ");
+  if(args[1]==NULL){
+    fprintf(stderr, "ash: expected argument to \"rmdir\"\n");
+  }else{
+    if(rmdir(args[1]) ==-1){
+      perror("+--- Error in mkdir ");
     }
+  }
+  return 1;
 }
 
 /**
@@ -277,16 +289,16 @@ int ash_execute(char **args)
     {
         ash_history(args[0]);
     }
-  else if(strcmp(args[0],"mkdir")==0)
-    {
-        char *foldername = args[1];
-        ash_mkdir(foldername);
-    }
-    else if(strcmp(args[0],"rmdir")==0)
-    {
-        char *foldername = args[1];
-        ash_rmdir(foldername);
-    }
+  // else if(strcmp(args[0],"mkdir")==0)
+  //   {
+  //       char *foldername = args[1];
+  //       ash_mkdir(foldername);
+  //   }
+  //   else if(strcmp(args[0],"rmdir")==0)
+  //   {
+  //       char *foldername = args[1];
+  //       ash_rmdir(foldername);
+  //   }
     else if(strcmp(args[0],"cp")==0)
     {
         char* file1 = args[1];
