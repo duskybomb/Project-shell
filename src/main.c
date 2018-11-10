@@ -1,13 +1,8 @@
 /***************************************************************************//**
-
   @file         main.c
-
   @author       Harshit Joshi & Eklavya Chopra & Gaurav
-
   @date         Friday,  9 November 2018
-
   @brief        ASH (Ares SHell)
-
 *******************************************************************************/
 
 #include <sys/wait.h>
@@ -17,11 +12,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
-#include <time.h>
-#include <dirent.h>
 #include <sys/stat.h>
-#include <pwd.h>
+#include <time.h>
 #include <fcntl.h>
+#include <pwd.h>
+#include <grp.h>
+#include <errno.h>
+#include <dirent.h>
 #define ash_RL_BUFSIZE 1024
 #define ash_TOK_BUFSIZE 64
 #define ash_TOK_DELIM " \t\r\n\a"
@@ -51,9 +48,7 @@ const char rocket[] =
 int ash_cd(char **args);
 int ash_help(char **args);
 int ash_exit(char **args);
-int ash_history(char *args);
-int ash_mkdir(char **args);
-int ash_rmdir(char **args);
+// int ash_mkdir(char **args);
 /*
   List of builtin commands, followed by their corresponding functions.
  */
@@ -61,18 +56,14 @@ char *builtin_str[] = {
   "cd",
   "help",
   "exit",
-  "history",
-  "mkdir",
-  "rmdir",
+  "list ls"
   "copy cp"
 };
 
 int (*builtin_func[]) (char **) = {
   &ash_cd,
   &ash_help,
-  &ash_exit,
-  &ash_mkdir,
-  &ash_rmdir
+  &ash_exit
 };
 
 int ash_num_builtins() {
@@ -131,58 +122,61 @@ int ash_exit(char **args)
 }
 
 
-/**
-   @brief Builtin command: history of the command line..
-   @param args List of args.  args[0] is "history"
-   @return Always returns 1, to continue executing.
- */
-int ash_history(char *args)
-{
-  const char *key = "history";
 
-  if (strlen(args) < strlen(key))
-    return 0;
-  int i;
-
-  for (i = 0; i < (int) strlen(key); i++) {
-    if (args[i] != key[i])
-      return 0;
-  }
-  return 1;
-}
 /**
    @brief Builtin command: make directory.
-   @param args List of args.  args[0] is "mkdir".  args[1] is the directory.
+   @param args List of args.  args[0] is "cd".  args[1] is the directory.
    @return Always returns 1, to continue executing.
  */
-int ash_mkdir(char **args)
-{
-  if(args[1]==NULL){
-    fprintf(stderr, "ash: expected argument to \"mkdir\"\n");
-  }else{
-    if(mkdir(args[1],0777)==-1 ){
-      perror("+--- Error in mkdir ");
-    }
-  }
-  return 1;
-}
 
 
-/**
-   @brief Builtin command: remove directory.
-   @param args List of args.  args[0] is "rmdir".  args[1] is the directory.
-   @return Always returns 1, to continue executing.
- */
-int ash_rmdir(char **args)
+
+
+ // int ash_mkdir(char **args)
+ // {
+
+ //            if(args[1]==NULL){
+ //              fprintf(stderr, "ash: expected argument to \"mkdir\"\n");
+
+ //            }else{
+
+ //                    if(mkdir(args[1],0777)==-1 ){
+ //                          perror("+--- Error in mkdir ");
+ //                    }
+ //              }
+
+ //    return 1;
+ // }
+
+/* list cwd contents*/
+void ash_ls()
 {
-  if(args[1]==NULL){
-    fprintf(stderr, "ash: expected argument to \"rmdir\"\n");
-  }else{
-    if(rmdir(args[1]) ==-1){
-      perror("+--- Error in mkdir ");
+    int i=0;
+    struct dirent **listr;
+    int listn = scandir(".", &listr, 0, alphasort);
+    if (listn >= 0)
+    {
+        printf("+--- Total objects in this directory\n");
+        printf("%d",listn-2),"\n";
+        for(i = 0; i < listn; i++ )
+        {
+            if(strcmp(listr[i]->d_name,".")==0 || strcmp(listr[i]->d_name,"..")==0)
+            {
+                continue;
+            }
+            else {
+              printf(listr[i]->d_name,"    \t");
+              printf("\t");
+          }
+            if(i%8==0) printf("\n");
+        }
+        printf("\n");
     }
-  }
-  return 1;
+    else
+    {
+        perror ("+--- Error in ls ");
+    }
+
 }
 
 /**
@@ -247,6 +241,9 @@ void ash_copy(char* file1, char* file2)
    @param args Null terminated list of arguments (including program).
    @return Always returns 1, to continue execution.
   */
+
+
+
 int ash_launch(char **args)
 {
   pid_t pid;
@@ -285,21 +282,7 @@ int ash_execute(char **args)
     // An empty command was entered.
     return 1;
   }
-  if(strcmp(args[0],"history")==0)
-    {
-        ash_history(args[0]);
-    }
-  // else if(strcmp(args[0],"mkdir")==0)
-  //   {
-  //       char *foldername = args[1];
-  //       ash_mkdir(foldername);
-  //   }
-  //   else if(strcmp(args[0],"rmdir")==0)
-  //   {
-  //       char *foldername = args[1];
-  //       ash_rmdir(foldername);
-  //   }
-    else if(strcmp(args[0],"cp")==0)
+  if(strcmp(args[0],"cp")==0)
     {
         char* file1 = args[1];
         char* file2 = args[2];
@@ -311,24 +294,65 @@ int ash_execute(char **args)
         {
             printf("+--- Error in cp : insufficient parameters\n");
         }
-    }
-  else{
-    for (i = 0; i < ash_num_builtins(); i++) {
-      if (strcmp(args[0], builtin_str[i]) == 0) {
-        return (*builtin_func[i])(args);
       }
+    else if(strcmp(args[0],"ls")==0)
+        {
+            char* optional = args[1];
+            ash_ls();
+        }
+  else{
+  for (i = 0; i < ash_num_builtins(); i++) {
+    if (strcmp(args[0], builtin_str[i]) == 0) {
+      return (*builtin_func[i])(args);
     }
   }
+ }
   return ash_launch(args);
 }
 
+/**
+   @brief Read a line of input from stdin.
+   @return The line from stdin.
+ */
 char *ash_read_line(void)
 {
-    char *line = NULL;
-    size_t len = 0;
-    getline(&line, &len, stdin);
-    return line;
+  int bufsize = ash_RL_BUFSIZE;
+  int position = 0;
+  char *buffer = malloc(sizeof(char) * bufsize);
+  int c;
+
+  if (!buffer) {
+    fprintf(stderr, "ash: allocation error\n");
+    exit(EXIT_FAILURE);
+  }
+
+  while (1) {
+    // Read a character
+    c = getchar();
+
+    if (c == EOF) {
+      exit(EXIT_SUCCESS);
+    } else if (c == '\n') {
+      buffer[position] = '\0';
+      return buffer;
+    } else {
+      buffer[position] = c;
+    }
+    position++;
+
+    // If we have exceeded the buffer, reallocate.
+    if (position >= bufsize) {
+      bufsize += ash_RL_BUFSIZE;
+      buffer = realloc(buffer, bufsize);
+      if (!buffer) {
+        fprintf(stderr, "ash: allocation error\n");
+        exit(EXIT_FAILURE);
+      }
+    }
+  }
 }
+
+
 /**
    @brief Split a line into tokens (very naively).
    @param line The line.
