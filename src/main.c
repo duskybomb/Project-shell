@@ -19,6 +19,8 @@
 #include <limits.h>
 #include <sys/stat.h>
 
+#define BUFSIZE 1000
+
 const char rocket[] =
 "           _\n\
           /^\\\n\
@@ -45,6 +47,7 @@ int ash_cd(char **args);
 int ash_help(char **args);
 int ash_exit(char **args);
 int ash_mkdir(char **args);
+int ash_pwd(char **args);
 /*
   List of builtin commands, followed by their corresponding functions.
  */
@@ -52,14 +55,16 @@ char *builtin_str[] = {
   "cd",
   "help",
   "exit",
-  "mkdir"
+  "mkdir",
+  "pwd"
 };
 
 int (*builtin_func[]) (char **) = {
   &ash_cd,
   &ash_help,
   &ash_exit,
-  &ash_mkdir
+  &ash_mkdir,
+  ash_pwd
 };
 
 int ash_num_builtins() {
@@ -118,15 +123,11 @@ int ash_exit(char **args)
 }
 
 
-
 /**
    @brief Builtin command: make directory.
-   @param args List of args.  args[0] is "cd".  args[1] is the directory.
+   @param args List of args.  args[0] is "mkdir".  args[1] is the directory.
    @return Always returns 1, to continue executing.
  */
-
-
-
 
  int ash_mkdir(char **args)
  {
@@ -144,7 +145,26 @@ int ash_exit(char **args)
     return 1;
  }
 
+ /**
+    @brief Builtin command: print present working directory.
+    @param args List of args.  Not examined.
+    @return Always returns 1, to continue executing.
+  */
 
+int ash_pwd(char **args)
+{
+
+  char temp[BUFSIZE];
+   char* path=getcwd(temp, sizeof(temp));
+   if(path != NULL)
+   {
+
+      printf("%s\n",temp);
+
+   }
+   else perror("+--- Error in getcwd() : ");
+
+}
 
 
  /**
@@ -152,8 +172,6 @@ int ash_exit(char **args)
    @param args Null terminated list of arguments (including program).
    @return Always returns 1, to continue execution.
   */
-
-
 
 int ash_launch(char **args)
 {
