@@ -10,6 +10,7 @@ OS Project for Operating System Course at Cluster Innovation Centre, University 
 
 - Built-in functions:
   - cd
+  - mkdir
   - help
   - exit
 - Check for dotfile
