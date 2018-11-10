@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 
 /*
   Function Declarations for builtin shell commands:
@@ -72,7 +73,7 @@ int ash_cd(char **args)
 int ash_help(char **args)
 {
   int i;
-  printf("Stephen Brennan's ash\n");
+  printf("Harshit Joshi's ash\n");
   printf("Type program names and arguments, and hit enter.\n");
   printf("The following are built in:\n");
 
@@ -238,15 +239,27 @@ void ash_loop(void)
   char *line;
   char **args;
   int status;
-
+  
+  char cwd[PATH_MAX];
   do {
-    printf(">> ");
-    line = ash_read_line();
-    args = ash_split_line(line);
-    status = ash_execute(args);
+    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+      printf("%c[1m",27);
+      printf("\033[1;33m");
+      printf("%s", cwd);
+      printf("\033[1;36m");
+      printf(">> ");
+      printf("\033[0m");
+      printf("%c[0m",27);
+      line = ash_read_line();
+      args = ash_split_line(line);
+      status = ash_execute(args);
 
-    free(line);
-    free(args);
+      free(line);
+      free(args);
+    } else {
+      perror("cannot get working dir");
+      exit(EXIT_FAILURE);
+    }
   } while (status);
 }
 
