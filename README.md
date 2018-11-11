@@ -37,7 +37,7 @@ OS Project for Operating System Course at Cluster Innovation Centre, University 
 
 ## Screenshot
 
-![ash (Ares SHell)](https://github.com/duskybomb/Project-shell/blob/master/images/Screenshot_11-11.png?raw=true "ash help")
+![ash (Ares SHell)](https://github.com/duskybomb/Project-shell/blob/master/images/screenshot_11-11.png?raw=true "ash help")
 
 
 ## Members
