@@ -22,9 +22,14 @@ OS Project for Operating System Course at Cluster Innovation Centre, University 
  - src/builtin.c: declaration of self made functions
 
 ## Run
+
+Make sure libconfig library is present. To install it:
+```
+$ sudo apt install libconfig-dev
+```
  
 ```
- $ gcc builtin.c main.c -o ash  #compile code
+ $ gcc builtin.c dotfileconfig.c main.c -o ash -lconfig #compile code
  $ ./ash  #run the shell
 ```
 
