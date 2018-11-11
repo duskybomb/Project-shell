@@ -10,12 +10,23 @@ OS Project for Operating System Course at Cluster Innovation Centre, University 
 
 - Built-in functions:
   - cd
-  - mkdir
-  - rmdir
   - help
   - exit
 - Check for dotfile
 - Run normal application example `>> subl text.txt`
+
+## Organisation
+
+ - ash: shell
+ - src/main.c
+ - src/builtin.c: declaration of self made functions
+
+## Run
+ 
+```
+ $ gcc builtin.c main.c -o ash  #compile code
+ $ ./ash  #run the shell
+```
 
 ## ToDo
 
@@ -26,7 +37,7 @@ OS Project for Operating System Course at Cluster Innovation Centre, University 
 
 ## Screenshot
 
-![ash (Ares SHell)](https://github.com/Eklavya42/Project-shell/blob/master/images/Screenshot%20from%202018-11-10%2019-15-33.png?raw=true "ash help")
+![ash (Ares SHell)](https://github.com/duskybomb/Project-shell/blob/master/images/screenshot_11-11.png?raw=true "ash help")
 
 
 ## Members

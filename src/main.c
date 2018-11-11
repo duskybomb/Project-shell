@@ -2,7 +2,7 @@
 
   @file         main.c
 
-  @author       Harshit Joshi , Eklavya Chopra , Dhairya Kathpalia, Gaurav Saini & Hardik Kapoor
+  @author       Harshit Joshi & Eklavya Chopra
 
   @date         Friday,  9 November 2018
 
@@ -18,16 +18,35 @@
 #include <string.h>
 #include <limits.h>
 #include <sys/stat.h>
+#include "builtin.h"
+//#include "dotfileconfig.h"
 
-#include "ash_shell.h"
+/*
+  Function Declarations for builtin shell commands:
+ */
+
+/*
+  List of builtin commands, followed by their corresponding functions.
+ */
+
+
+/*
+  Builtin function implementations.
+*/
+
+int ash_cd(char **args);
+int ash_help(char **args);
+int ash_exit(char **args);
+//int ash_mkdir(char **args);
+
+int (*builtin_func[]) (char **);
+
 
  /**
    @brief Launch a program and wait for it to terminate.
    @param args Null terminated list of arguments (including program).
    @return Always returns 1, to continue execution.
   */
-
-
 
 int ash_launch(char **args)
 {
@@ -172,13 +191,11 @@ void ash_loop(void)
   char cwd[PATH_MAX];
   do {
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
-      printf("%c[1m",27);
       printf("\033[1;33m");
       printf("%s", cwd);
       printf("\033[1;36m");
       printf(">> ");
       printf("\033[0m");
-      printf("%c[0m",27);
       line = ash_read_line();
       args = ash_split_line(line);
       status = ash_execute(args);
@@ -211,6 +228,7 @@ int main(int argc, char **argv)
   if (fp == NULL) {
     printf("Cannot find .ashrc :: using default settings\n");
   }
+  printf("%s\n", rocket);
   // Run command loop.
   ash_loop();
 
