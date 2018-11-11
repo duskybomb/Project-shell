@@ -21,18 +21,6 @@
 #include "builtin.h"
 #include "dotfileconfig.h"
 
-/*
-  Function Declarations for builtin shell commands:
- */
-
-/*
-  List of builtin commands, followed by their corresponding functions.
- */
-
-
-/*
-  Builtin function implementations.
-*/
 
 int ash_cd(char **args);
 int ash_help(char **args);
@@ -191,10 +179,14 @@ void ash_loop(void)
   char cwd[PATH_MAX];
   do {
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
-      printf("\033[1;33m");
+      //char color_loc = color_location_ash();
+      printf("\033[1;31m");
+      //color_location_ash();
       printf("%s", cwd);
       printf("\033[1;36m");
-      printf(">> ");
+      //color_prompt_ash();
+      //printf("%s", prompt_ash());
+      prompt_ash();
       printf("\033[0m");
       line = ash_read_line();
       args = ash_split_line(line);
@@ -230,6 +222,7 @@ int main(int argc, char **argv)
   }
   printf("%s\n", rocket);
   // Run command loop.
+  read_config();
   ash_loop();
 
   // Perform any shutdown/cleanup.
