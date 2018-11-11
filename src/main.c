@@ -19,6 +19,7 @@
 #include <limits.h>
 #include <sys/stat.h>
 #include "builtin.h"
+#include "dotfileconfig.h"
 
 /*
   Function Declarations for builtin shell commands:
@@ -227,6 +228,7 @@ int main(int argc, char **argv)
   if (fp == NULL) {
     printf("Cannot find .ashrc :: using default settings\n");
   }
+  printf("%s\n", rocket);
   // Run command loop.
   ash_loop();
 

@@ -14,18 +14,20 @@
 
 
 const char rocket[] =
-        "           _\n\
-          /^\\\n\
-          |-|\n\
-          | |\n\
-          | |\n\
-          |A|\n\
-          |S|\n\
-          |H|\n\
-         /| |\\\n\
-        / | | \\\n\
-       |  | |  |\n\
-        `-\"\"\"-`\n\
+"======================+\n\
+           _          ||\n\
+          /^\\         ||\n\
+          |-|         ||  ASH (Ares SHell) - Unix Shell made in C\n\
+          | |         ||\n\
+          | |         ||  Last update: 12 November 2018\n\
+          |A|         ||  Contributors:\n\
+          |S|         ||    duskybomb (Harshit Joshi)\n\
+          |H|         ||    Eklavya Chopra\n\
+         /| |\\        ||    Gaurav\n\
+        / | | \\       ||    Dhairya Kathapalia\n\
+       |  | |  |      ||    Hardik Kapoor\n\
+        `-\"\"\"-`       ||\n\
+======================+\n\
 ";
 
 int ash_cd(char **args);

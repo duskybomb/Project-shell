@@ -7,4 +7,6 @@
 
 extern char *builtin_str[];
 
+extern const char rocket[];
+
 #endif //SHELL_BUILTIN_H
