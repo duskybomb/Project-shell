@@ -21,6 +21,7 @@ int ash_cd(char **args);
 int ash_help(char **args);
 int ash_exit(char **args);
 int ash_mkdir(char **args);
+int ash_rmdir(char **args);
 /*
   List of builtin commands, followed by their corresponding functions.
  */
@@ -28,14 +29,16 @@ char *builtin_str[] = {
   "cd",
   "help",
   "exit",
-  "mkdir"
+  "mkdir",
+  "rmdir"
 };
 
 int (*builtin_func[]) (char **) = {
   &ash_cd,
   &ash_help,
   &ash_exit,
-  &ash_mkdir
+  &ash_mkdir,
+  &ash_rmdir
 };
 
 int ash_num_builtins() {
@@ -119,6 +122,27 @@ int ash_exit(char **args)
                     for(int i=2;args[i]!=NULL;i++){
                       if(mkdir(args[i],0777)==-1 ){
                           perror("+--- Error in mkdir ");
+                      }
+                    }
+              }
+
+    return 1;
+ }
+
+ int ash_rmdir(char **args)
+ {
+            if(args[1]==NULL){
+              fprintf(stderr, "ash: expected argument to \"rmdir\"\n");
+
+            }else{
+
+                    if(rmdir(args[1])==-1 ){
+                          perror("+--- Error in rmdir ");
+                    }
+
+                    for(int i=2;args[i]!=NULL;i++){
+                      if(rmdir(args[i])==-1 ){
+                          perror("+--- Error in rmdir ");
                       }
                     }
               }
