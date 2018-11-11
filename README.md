@@ -15,6 +15,19 @@ OS Project for Operating System Course at Cluster Innovation Centre, University 
 - Check for dotfile
 - Run normal application example `>> subl text.txt`
 
+## Organisation
+
+ - ash: shell
+ - src/main.c
+ - src/builtin.c: declaration of self made functions
+
+## Run
+ 
+```
+ $ gcc builtin.c main.c -o ash  #compile code
+ $ ./ash  #run the shell
+```
+
 ## ToDo
 
 - [ ] Using dotfile
